@@ -5,7 +5,7 @@ Assets selection widget for imguigml allowing to scan existing assets (object, s
 
 
 ### Use case
-I build a simple user interface on top of Evoleo’s LDtk parser. https://github.com/evolutionleo/LDtkParser
+I built a simple user interface on top of Evoleo’s LDtk parser. https://github.com/evolutionleo/LDtkParser
 In the process, I included a Selector feature that would allow the user to choose an object, a level or a tileset from Game Maker project to define conversion mappings between LDtk and Game Maker (mappings dictate rules like ‘this LDtk entity should convert to that Game Maker object’…). The list would scan all assets existing in the currently running project to prevent any error in defining mappings. My code became quite hard to follow so I decided to package this in an imguigml widget, to extend its features (adding sorting and filtering options) and to share it with whoever is interested.
  
 
