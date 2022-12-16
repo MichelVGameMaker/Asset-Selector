@@ -1,8 +1,8 @@
 // harcoded types and names for assets
-#macro G2L_asset_types    [asset_object, asset_sprite, asset_sound, asset_tiles, asset_path , asset_script, asset_font, asset_timeline, asset_shader, asset_animationcurve, asset_sequence, asset_unknown]
-#macro G2L_asset_names    ["object",     "sprite",     "sound",     "tileset",   "path",      "script" ,    "font" ,    "timeline" ,    "shader" ,    "animationcurve",     "sequence",     "layer"]
-#macro G2L_SCAN_PER_STEP  1000 // this allow to span the scan on multiple steps to avoid any lag
-#macro G2L_ITEMS_PER_PAGE 100  // imguigml_list_box has a memory limit (of course), sending hundreds of names might freeze so this allow to split the list in pages 
+#macro G2L_asset_types    [asset_object, asset_sprite, asset_sound, asset_room, asset_tiles, asset_path , asset_script, asset_font, asset_timeline, asset_shader, asset_animationcurve, asset_sequence, asset_unknown]
+#macro G2L_asset_names    ["object",     "sprite",     "sound",     "room",     "tileset",   "path",      "script" ,    "font" ,    "timeline" ,    "shader" ,    "animationcurve",     "sequence",     "layer"]
+#macro G2L_SCAN_PER_STEP  1000    // this allow to span the scan on multiple steps to avoid any lag
+#macro G2L_ITEMS_PER_PAGE 100     // imguigml_list_box has a memory limit (of course), sending hundreds of names might freeze so this allow to split the list in pages 
 
 /// @function G2L_Asset_Selector(type, type_change)
 /// @description Constructs a struct that can display the Asset Selector widget.
@@ -19,6 +19,7 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 	// asset type variable
 	asset_type    = asset_object;							// the asset type the selector allows to browse and select. It uses Game Maker native constants.
 	asset_code    = 0;										// the asset code, which is the index of the asset_type in the G2L_asset_names array. This is 'manualy' transcoded in set_type() based on asset_type.
+	scan_room     = undefined;                              // the room to scan layer, current room if undefined
 	type_change   = _type_change;							// boolean, if selector interface displays a combo_list to change the asset type.
 	set_type(_type);										// initialize passed _type.
 	// list variables
@@ -53,6 +54,10 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 			case asset_sound  :
 				var _exists = function(_i) { return audio_exists(_i);      };
 				var _name   = function(_i) { return audio_get_name(_i);    };
+				break;
+			case asset_room  :
+				var _exists = function(_i) { return room_exists(_i);      };
+				var _name   = function(_i) { return room_get_name(_i);    };
 				break;
 			case asset_tiles  : 
 				var _exists = function(_i) { return tileset_get_name(_i) != tileset_get_name(-1);   };
@@ -91,6 +96,8 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 				var _name   = function(_i) { return string(_i);            };
 				break;
 			case asset_unknown: // used for layers
+				if scan_room != undefined
+				layer_set_target_room(scan_room);
 				var _layers = layer_get_all();
 				var _i = 0, _len = array_length(_layers), _layer_i, _name_i;
 				repeat (_len)
@@ -105,6 +112,7 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 				list_pages = ceil(_i/G2L_ITEMS_PER_PAGE);	// number of pages
 				scanned_id = -1;							// scan is over	
 				__update_page();
+				layer_reset_target_room();
 				exit;
 				break;
 		}	
@@ -129,7 +137,7 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 		}
 		scanned_id = _i;
 	}
-	static __update_page   = function()						// Updates the array storing all asset_names (to be used in imguigml widget), accoding to sorting and filtering rules.
+	static __update_page   = function()                     // Updates the array storing all asset_names (to be used in imguigml widget), accoding to sorting and filtering rules.
 	{
 		page_names      = [];
 		var _names = variable_struct_get_names(assets);
@@ -154,7 +162,22 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 			}
 		}
 	}
-
+	static asset_name_exists = function(_asset_name)        // Tests if an asset exists in the Selector, based on its name.
+	{
+		return assets[$ _asset_name] != undefined;
+	}
+	static asset_id_exists = function(_asset_id)          // Tests if an asset exists in the Selector, based on its name.
+	{
+		var _return = false;
+		var _names  = variable_struct_get_names(assets);
+		var _i = array_length(_names), _name_i;
+		repeat(_i)
+		{
+			_i--;
+			if assets[$ _names[ _i]].id == _asset_id return true;
+		}
+		return _return;
+	}
 	static set_type = function(_asset_type = asset_object)  // Sets the asset_type for the selector. Scan assets once it is done.
 	{
 		asset_type = _asset_type;	
@@ -180,6 +203,22 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 		list_page     = 0;
 		list_pages    = 0;
 		__start_scan();
+	}
+	static set_scan_room = function(_room)  // Sets the scan room. Scan assets if the current asset_type is layer.
+	{
+		if _room != scan_room 
+		{
+			scan_room = _room;
+			if asset_type =  asset_unknown
+			{
+				list_sorting  = true;
+				list_filter   = "";
+				list_index    = 0;
+				list_page     = 0;
+				list_pages    = 0;
+				__start_scan();	
+			}
+		}
 	}
 	static set_page       = function(_page = 0)				// Sets the current page for the selector. Refresh the array storing all asset_names once it is done.
 	{
@@ -246,7 +285,7 @@ function G2L_Asset_Selector(_type = asset_object, _type_change = false) construc
 		if _output[0] 
 		{
 			list_index = _output[1];
-			return  [_output[0], assets[$ page_names[list_index]].id];
+			return  [_output[0], assets[$ page_names[list_index]].id, page_names[list_index]];
 		}
 		else
 		{
