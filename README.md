@@ -12,7 +12,7 @@ In the process, I included a Selector feature that would allow the user to choos
 
 ### Features
 Asset_Selector is quite straightforward. Each selector is created to target a specific asset_type (object by default).
-From there, it will display the list of all the assets associated to that type. Clicking an asset in the list will return an array with two values “à la” imguigml. The first one is a Boolean that will be true when user clicks an item in the list. The second is the asset_index associated to the clicked item.
+From there, it will display the list of all the assets associated to that type. Clicking an asset in the list will return an array with three values “à la” imguigml. The first one is a Boolean that will be true when user clicks an item in the list. The second is the asset_index associated to the clicked item. The third one is the asset_name.
 
 Above the list, two buttons [Az] and [Za] allow to sort the list alphabeticaly (ascending and descending) and an input field allows to filter the list on items containing the specified string (case INsensitive).
 Due to the memory limit of imguigml_list_box(), the list is split in pages of 100 items. You can navigate with [0] [1] [x] wich will bring you to the associated page. The number of items per page is defined by the G2L_ITEMS_PER_PAGE #macro.
@@ -40,9 +40,11 @@ If you need to import both imguigml and G2L_Asset_Window, you can import the bun
 ### How to use
 Create a struct of the Asset Selector class, the first argument defines the asset type (using asset_xx constant from Game Maker), the second argument, when set to true, allows user to change the asset type anytime.
 Call the imguigml_step() method for this struct (exactly like you would do when calling imguigml_combo() or imguigml_list_box())
-This method will return an array [change, index]
+This method will return an array [change, index, name]
 - change: true/false, true when an item is selected in the list
 - index : asset_index of the selected item
+- name : asset_name of the selected item
+
 You can then use this in your code for example to play the associated sound, set an instance’s sprite to the associated asset, navigate to a specific room…
 
 Please remember; Asset Selector requires imguigml and imguigml_step() needs to be called within your imguigml instructions.
