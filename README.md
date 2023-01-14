@@ -2,6 +2,9 @@
 
 Assets selection widget for imguigml allowing to scan existing assets (object, sprite, audio, shader…), display them in a sortable list and allow user to pick one.
 
+![Asset-Selector_visuals](https://user-images.githubusercontent.com/62699812/212471563-595e420c-38bf-4313-acf1-7fbc808adb8d.jpg)
+
+*scroll, filter, order and retrieve the clicked assets data*
 
 ## About
 
