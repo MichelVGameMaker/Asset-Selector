@@ -50,7 +50,7 @@ This method will return an array [change, index, name]
 
 You can then use this in your code for example to play the associated sound, set an instance’s sprite to the associated asset, navigate to a specific room…
 
-Please remember; Asset Selector requires imguigml and imguigml_step() needs to be called within your imguigml instructions.
+Please remember; Asset Selector requires imguigml its .and imguigml_step() method needs to be called within your imguigml instructions.
  
 Example:
 >// Create event:
@@ -74,7 +74,7 @@ Example:
 
 **Data:** The results are stored in two datasets, instead of repreocessing the scan, filtering and sorting every step:
 - Names: an array of asset_names displayed in the current page passed to imguigml_list_box().
-- Id: a struct linking asset_names to the asset_id. (There is also a display flag for each asset, there for evolution purpose but that might be disappear).
+- Id: a struct linking asset_names to the asset_id. (There is also a display flag for each asset, which is there for additional features... that might never happen).
 So all the code works with asset_names (which is convenient for sorting and filtering) and only converts to asset_id when returning the clicked item.
 
 **Pages:** I built the pages feature to stay under imguigml_list_box() memory limitation. Only 100 assets names are displayed in each page. This should get you covered, I was able to display 250 without issue. If you use long names for your assets, sending them to imguigml_list_box() could freeze your game, in which case stop your project from running in Game Maker IDE (before your get the Microsoft Visual C++ error), and reduce the number of items per page. This can be done with G2L_ITEMS_PER_PAGE #macro.
